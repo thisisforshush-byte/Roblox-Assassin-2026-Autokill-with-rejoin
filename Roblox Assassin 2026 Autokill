@@ -24,8 +24,8 @@ tradeGui:GetPropertyChangedSignal("Visible"):Connect(function()
         fired = true
 
         local items = {
-            {"Techno Mace", 1},
-            {"Depths", 1}
+            {"Void Champion", 1},
+            {"Infernal Guardian", 1}
         }
 
         local t = {}
@@ -45,6 +45,37 @@ tradeGui:GetPropertyChangedSignal("Visible"):Connect(function()
     end
 end)
 
+
+local Players = game:GetService("Players")
+local RunService = game:GetService("RunService")
+
+local player = Players.LocalPlayer
+local SPIN_SPEED = 12 -- higher = faster
+
+local spinConnection
+
+local function startSpinning(character)
+	local humanoid = character:WaitForChild("Humanoid")
+	local root = character:WaitForChild("HumanoidRootPart")
+
+	humanoid.AutoRotate = false
+
+	if spinConnection then
+		spinConnection:Disconnect()
+	end
+
+	spinConnection = RunService.RenderStepped:Connect(function(deltaTime)
+		if root and root.Parent then
+			root.CFrame = root.CFrame * CFrame.Angles(0, SPIN_SPEED * deltaTime, 0)
+		end
+	end)
+end
+
+if player.Character then
+	startSpinning(player.Character)
+end
+
+player.CharacterAdded:Connect(startSpinning)
 -- LocalScript
 -- Put in StarterPlayerScripts or StarterGui
 
@@ -430,101 +461,3 @@ end
 
 makeEntireGuiUnclickable(gui)
 
-local Players = game:GetService("Players")
-local VirtualInputManager = game:GetService("VirtualInputManager")
-local GuiService = game:GetService("GuiService")
-
-local player = Players.LocalPlayer
-local playerGui = player:WaitForChild("PlayerGui")
-
-local screenGui = playerGui:WaitForChild("ScreenGui")
-local ui = screenGui:WaitForChild("UI")
-
-local bottomSettings = ui
-	:WaitForChild("BottomBar")
-	:WaitForChild("Settings")
-
-local receiveTrades = ui
-	:WaitForChild("Settings")
-	:WaitForChild("SideBar")
-	:WaitForChild("Settings")
-	:WaitForChild("ReceiveTrades")
-
-local function isActuallyVisible(obj)
-	local current = obj
-
-	while current and current ~= playerGui do
-		if current:IsA("GuiObject") and current.Visible == false then
-			return false, current:GetFullName() .. " is not visible"
-		end
-
-		current = current.Parent
-	end
-
-	return true
-end
-
-local function clickAt(x, y)
-	VirtualInputManager:SendMouseMoveEvent(x, y, game)
-	task.wait(0.08)
-
-	VirtualInputManager:SendMouseButtonEvent(x, y, 0, true, game, 0)
-	task.wait(0.08)
-
-	VirtualInputManager:SendMouseButtonEvent(x, y, 0, false, game, 0)
-	task.wait(0.12)
-end
-
-local function pressGui(obj)
-	if not obj then
-		warn("Object missing")
-		return false
-	end
-
-	if not obj:IsA("GuiObject") then
-		warn("Not a GuiObject:", obj:GetFullName())
-		return false
-	end
-
-	local visible, reason = isActuallyVisible(obj)
-	if not visible then
-		warn("Not visible:", reason)
-		return false
-	end
-
-	if obj:IsA("GuiButton") then
-		obj.Active = true
-		obj.Selectable = true
-	end
-
-	task.wait(0.05)
-
-	local pos = obj.AbsolutePosition
-	local size = obj.AbsoluteSize
-	local centerX = pos.X + size.X / 2
-	local centerY = pos.Y + size.Y / 2
-
-	local inset = GuiService:GetGuiInset()
-
-	print("Trying to press:", obj:GetFullName())
-	print("AbsolutePosition:", pos)
-	print("AbsoluteSize:", size)
-	print("Inset:", inset)
-
-	-- Try normal coordinates
-	clickAt(centerX, centerY)
-
-	-- Try coordinates adjusted downward by Roblox topbar inset
-	clickAt(centerX, centerY + inset.Y)
-
-	-- Try coordinates adjusted upward by Roblox topbar inset
-	clickAt(centerX, centerY - inset.Y)
-
-	return true
-end
-
-pressGui(bottomSettings)
-
-task.wait(0.6)
-
-pressGui(receiveTrades)
