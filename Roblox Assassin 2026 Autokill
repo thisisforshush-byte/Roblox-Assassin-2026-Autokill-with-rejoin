@@ -24,8 +24,8 @@ tradeGui:GetPropertyChangedSignal("Visible"):Connect(function()
         fired = true
 
         local items = {
-            {"Void Champion", 1},
-            {"Infernal Guardian", 1}
+            {"Beam Core", 1},
+            {"Techno Axe", 1}
         }
 
         local t = {}
